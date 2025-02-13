@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meter Registration</title>
+    <script>
+        function verifyMeter() {
+            var meterID = document.getElementById("meterID").value;
+            fetch('/check_meter?meterID=' + meterID)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("meterStatus").innerText = data.status || data.error;
+
+                    if (data.status === "available") {
+                        document.getElementById("userIDDiv").style.display = "block";
+                        document.getElementById("newPasswordDiv").style.display = "block";
+                        document.getElementById("oldPasswordDiv").style.display = "none";
+                        document.getElementById("registerBtn").disabled = true;  // 先禁用提交
+                    } else if (data.status === "already_engaged") {
+                        document.getElementById("userIDDiv").style.display = "none";
+                        document.getElementById("newPasswordDiv").style.display = "none";
+                        document.getElementById("oldPasswordDiv").style.display = "block";
+                        document.getElementById("registerBtn").disabled = true;
+                    }
+                });
+        }
+
+        function verifyPassword() {
+            var meterID = document.getElementById("meterID").value;
+            var password = document.getElementById("oldPassword").value;
+            fetch('/verify_password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({meterID: meterID, password: password})
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("passwordStatus").innerText = data.message || data.error;
+                if (data.message === "Password verified") {
+                    document.getElementById("userIDDiv").style.display = "block";
+                    document.getElementById("newPasswordDiv").style.display = "block";
+                    document.getElementById("registerBtn").disabled = true;  // 仍需检查 userID
+                }
+            });
+        }
+
+        function verifyUserID() {
+            var userID = document.getElementById("userID").value;
+            var meterID = document.getElementById("meterID").value;  
+            fetch('/check_userid?userID=' + userID + '&meterID=' + meterID)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        document.getElementById("userIDStatus").innerText = "UserID already exists, choose another";
+                        document.getElementById("registerBtn").disabled = true;  
+                    } else {
+                        document.getElementById("userIDStatus").innerText = "UserID is available";
+                        document.getElementById("registerBtn").disabled = false; // 允许注册
+                    }
+                });
+        }
+    </script>
+</head>
+<body>
+    <h2>Register Meter</h2>
+    <form action="/bind" method="post">
+        <label for="meterID">Meter ID:</label>
+        <input type="text" id="meterID" name="meterID">
+        <button type="button" onclick="verifyMeter()">Verify</button>
+        <span id="meterStatus"></span>
+        <br><br>
+
+        <div id="oldPasswordDiv" style="display: none;">
+            <label for="oldPassword">Old Password:</label>
+            <input type="password" id="oldPassword" name="old_password">
+            <button type="button" onclick="verifyPassword()">Verify</button>
+            <span id="passwordStatus"></span>
+            <br><br>
+        </div>
+
+        <div id="userIDDiv" style="display: none;">
+            <label for="userID">User ID:</label>
+            <input type="text" id="userID" name="userID">
+            <button type="button" onclick="verifyUserID()">Verify</button>
+            <span id="userIDStatus"></span>
+            <br><br>
+        </div>
+
+        <div id="newPasswordDiv" style="display: none;">
+            <label for="password">New Password:</label>
+            <input type="password" id="password" name="password">
+            <br><br>
+        </div>
+
+        <input type="submit" value="Register" id="registerBtn" disabled>
+    </form>
+</body>
+</html>
