@@ -68,8 +68,8 @@
         "area": "Clementi",
         "region": "West Region",
         "userID": "001009",
-        "password": "pass1009",
-        "timestamp": "2025-02-01T01:10:00"
+        "password": "6666666",
+        "timestamp": "2025-02-13T07:03:42"
     },
     {
         "meterID": "101-010-101",
@@ -199,6 +199,4 @@
         "password": "NA",
         "timestamp": "NA"
     }
-
-
 ]
