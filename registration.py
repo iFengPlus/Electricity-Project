@@ -6,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__, template_folder="templates")
 lock = threading.Lock()
-DATA_FILE = "updated_predataset.json.json"
+DATA_FILE = "updated_predataset.json"
 
 def load_data():
     if not os.path.exists(DATA_FILE):
@@ -20,7 +20,7 @@ def save_data(data):
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-@app.route('/register_page', methods=['GET'])
+@app.route('/', methods=['GET'])
 def register_page():
     return render_template('register.html')
 
