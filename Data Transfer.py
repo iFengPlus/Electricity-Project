@@ -1,38 +1,40 @@
-from flask import Flask, request, jsonify
 import dash
 from dash import html, dcc
 import pandas as pd
-
-app = Flask(__name__)
+from dash.dependencies import Input, Output
 
 # 存储数据的列表
 data_store = []
 
-@app.route('/submit', methods=['POST'])
-def submit_reading():
-    data = request.json
-    if not all(key in data for key in ["meter_id", "timestamp", "reading_kwh"]):
-        return jsonify({"error": "Missing required fields"}), 400
-    
-    data_store.append(data)
-    return jsonify({"message": "Data received successfully"}), 200
+app = dash.Dash(__name__)
 
-@app.route('/data', methods=['GET'])
-def get_data():
-    return jsonify(data_store)
-
-# Dash 应用
-app_dash = dash.Dash(__name__, server=app, routes_pathname_prefix='/dash/')
-
-app_dash.layout = html.Div([
+app.layout = html.Div([
     html.H1("Meter Readings"),
+    dcc.Input(id='meter_id', type='text', placeholder='Enter Meter ID'),
+    dcc.Input(id='timestamp', type='text', placeholder='Enter Timestamp'),
+    dcc.Input(id='reading_kwh', type='number', placeholder='Enter kWh Reading'),
+    html.Button('Submit', id='submit-btn', n_clicks=0),
+    html.Div(id='message'),
     dcc.Interval(id='interval-component', interval=2000, n_intervals=0),
     html.Div(id='data-display')
 ])
 
-@app_dash.callback(
-    dash.Output('data-display', 'children'),
-    [dash.Input('interval-component', 'n_intervals')]
+@app.callback(
+    Output('message', 'children'),
+    Input('submit-btn', 'n_clicks'),
+    [dash.State('meter_id', 'value'),
+     dash.State('timestamp', 'value'),
+     dash.State('reading_kwh', 'value')]
+)
+def submit_reading(n_clicks, meter_id, timestamp, reading_kwh):
+    if n_clicks > 0 and meter_id and timestamp and reading_kwh is not None:
+        data_store.append({"meter_id": meter_id, "timestamp": timestamp, "reading_kwh": reading_kwh})
+        return "Data received successfully"
+    return ""
+
+@app.callback(
+    Output('data-display', 'children'),
+    Input('interval-component', 'n_intervals')
 )
 def update_data(n):
     df = pd.DataFrame(data_store)
@@ -45,4 +47,4 @@ def update_data(n):
     ])
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run_server(debug=True)
