@@ -1,0 +1,742 @@
+{
+  "999-999-999": [
+    {
+      "timestamp": "2025-02-01T01:10:00",
+      "reading_kwh": 10.5
+    },
+    {
+      "timestamp": "2025-02-01T01:40:00",
+      "reading_kwh": 11.2
+    },
+    {
+      "timestamp": "2025-02-01T02:10:00",
+      "reading_kwh": 12.1
+    },
+    {
+      "timestamp": "2025-02-01T02:40:00",
+      "reading_kwh": 12.9
+    },
+    {
+      "timestamp": "2025-02-01T03:10:00",
+      "reading_kwh": 13.6
+    },
+    {
+      "timestamp": "2025-02-01T03:40:00",
+      "reading_kwh": 14.2
+    },
+    {
+      "timestamp": "2025-02-01T04:10:00",
+      "reading_kwh": 15.1
+    },
+    {
+      "timestamp": "2025-02-01T04:40:00",
+      "reading_kwh": 15.7
+    },
+    {
+      "timestamp": "2025-02-01T05:10:00",
+      "reading_kwh": 16.5
+    },
+    {
+      "timestamp": "2025-02-01T05:40:00",
+      "reading_kwh": 17.1
+    },
+    {
+      "timestamp": "2025-02-01T06:10:00",
+      "reading_kwh": 17.9
+    },
+    {
+      "timestamp": "2025-02-01T06:40:00",
+      "reading_kwh": 18.8
+    },
+    {
+      "timestamp": "2025-02-01T07:10:00",
+      "reading_kwh": 19.4
+    },
+    {
+      "timestamp": "2025-02-01T07:40:00",
+      "reading_kwh": 19.9
+    },
+    {
+      "timestamp": "2025-02-01T08:10:00",
+      "reading_kwh": 20.8
+    },
+    {
+      "timestamp": "2025-02-01T08:40:00",
+      "reading_kwh": 21.4
+    },
+    {
+      "timestamp": "2025-02-01T09:10:00",
+      "reading_kwh": 22.3
+    },
+    {
+      "timestamp": "2025-02-01T09:40:00",
+      "reading_kwh": 23.2
+    },
+    {
+      "timestamp": "2025-02-01T10:10:00",
+      "reading_kwh": 23.8
+    },
+    {
+      "timestamp": "2025-02-01T10:40:00",
+      "reading_kwh": 24.4
+    },
+    {
+      "timestamp": "2025-02-01T11:10:00",
+      "reading_kwh": 25.0
+    },
+    {
+      "timestamp": "2025-02-01T11:40:00",
+      "reading_kwh": 26.0
+    },
+    {
+      "timestamp": "2025-02-01T12:10:00",
+      "reading_kwh": 26.7
+    },
+    {
+      "timestamp": "2025-02-01T12:40:00",
+      "reading_kwh": 27.5
+    },
+    {
+      "timestamp": "2025-02-01T13:10:00",
+      "reading_kwh": 28.3
+    },
+    {
+      "timestamp": "2025-02-01T13:40:00",
+      "reading_kwh": 29.1
+    },
+    {
+      "timestamp": "2025-02-01T14:10:00",
+      "reading_kwh": 30.0
+    },
+    {
+      "timestamp": "2025-02-01T14:40:00",
+      "reading_kwh": 30.5
+    },
+    {
+      "timestamp": "2025-02-01T15:10:00",
+      "reading_kwh": 31.2
+    },
+    {
+      "timestamp": "2025-02-01T15:40:00",
+      "reading_kwh": 32.0
+    },
+    {
+      "timestamp": "2025-02-01T16:10:00",
+      "reading_kwh": 32.8
+    },
+    {
+      "timestamp": "2025-02-01T16:40:00",
+      "reading_kwh": 33.5
+    },
+    {
+      "timestamp": "2025-02-01T17:10:00",
+      "reading_kwh": 34.5
+    },
+    {
+      "timestamp": "2025-02-01T17:40:00",
+      "reading_kwh": 35.2
+    },
+    {
+      "timestamp": "2025-02-01T18:10:00",
+      "reading_kwh": 36.1
+    },
+    {
+      "timestamp": "2025-02-01T18:40:00",
+      "reading_kwh": 36.7
+    },
+    {
+      "timestamp": "2025-02-01T19:10:00",
+      "reading_kwh": 37.6
+    },
+    {
+      "timestamp": "2025-02-01T19:40:00",
+      "reading_kwh": 38.2
+    },
+    {
+      "timestamp": "2025-02-01T20:10:00",
+      "reading_kwh": 38.8
+    },
+    {
+      "timestamp": "2025-02-01T20:40:00",
+      "reading_kwh": 39.6
+    },
+    {
+      "timestamp": "2025-02-01T21:10:00",
+      "reading_kwh": 40.3
+    },
+    {
+      "timestamp": "2025-02-01T21:40:00",
+      "reading_kwh": 41.3
+    },
+    {
+      "timestamp": "2025-02-01T22:10:00",
+      "reading_kwh": 42.0
+    },
+    {
+      "timestamp": "2025-02-01T22:40:00",
+      "reading_kwh": 42.8
+    },
+    {
+      "timestamp": "2025-02-01T23:10:00",
+      "reading_kwh": 43.3
+    },
+    {
+      "timestamp": "2025-02-01T23:40:00",
+      "reading_kwh": 44.2
+    },
+    {
+      "timestamp": "2025-02-02T01:10:00",
+      "reading_kwh": 44.9
+    },
+    {
+      "timestamp": "2025-02-02T01:40:00",
+      "reading_kwh": 45.6
+    },
+    {
+      "timestamp": "2025-02-02T02:10:00",
+      "reading_kwh": 46.6
+    },
+    {
+      "timestamp": "2025-02-02T02:40:00",
+      "reading_kwh": 47.1
+    },
+    {
+      "timestamp": "2025-02-02T03:10:00",
+      "reading_kwh": 47.8
+    },
+    {
+      "timestamp": "2025-02-02T03:40:00",
+      "reading_kwh": 48.8
+    },
+    {
+      "timestamp": "2025-02-02T04:10:00",
+      "reading_kwh": 49.6
+    },
+    {
+      "timestamp": "2025-02-02T04:40:00",
+      "reading_kwh": 50.5
+    },
+    {
+      "timestamp": "2025-02-02T05:10:00",
+      "reading_kwh": 51.2
+    },
+    {
+      "timestamp": "2025-02-02T05:40:00",
+      "reading_kwh": 52.0
+    },
+    {
+      "timestamp": "2025-02-02T06:10:00",
+      "reading_kwh": 52.6
+    },
+    {
+      "timestamp": "2025-02-02T06:40:00",
+      "reading_kwh": 53.3
+    },
+    {
+      "timestamp": "2025-02-02T07:10:00",
+      "reading_kwh": 54.1
+    },
+    {
+      "timestamp": "2025-02-02T07:40:00",
+      "reading_kwh": 54.6
+    },
+    {
+      "timestamp": "2025-02-02T08:10:00",
+      "reading_kwh": 55.4
+    },
+    {
+      "timestamp": "2025-02-02T08:40:00",
+      "reading_kwh": 56.2
+    },
+    {
+      "timestamp": "2025-02-02T09:10:00",
+      "reading_kwh": 57.0
+    },
+    {
+      "timestamp": "2025-02-02T09:40:00",
+      "reading_kwh": 58.0
+    },
+    {
+      "timestamp": "2025-02-02T10:10:00",
+      "reading_kwh": 58.9
+    },
+    {
+      "timestamp": "2025-02-02T10:40:00",
+      "reading_kwh": 59.6
+    },
+    {
+      "timestamp": "2025-02-02T11:10:00",
+      "reading_kwh": 60.6
+    },
+    {
+      "timestamp": "2025-02-02T11:40:00",
+      "reading_kwh": 61.2
+    },
+    {
+      "timestamp": "2025-02-02T12:10:00",
+      "reading_kwh": 62.1
+    },
+    {
+      "timestamp": "2025-02-02T12:40:00",
+      "reading_kwh": 63.0
+    },
+    {
+      "timestamp": "2025-02-02T13:10:00",
+      "reading_kwh": 63.9
+    },
+    {
+      "timestamp": "2025-02-02T13:40:00",
+      "reading_kwh": 64.6
+    },
+    {
+      "timestamp": "2025-02-02T14:10:00",
+      "reading_kwh": 65.1
+    },
+    {
+      "timestamp": "2025-02-02T14:40:00",
+      "reading_kwh": 65.9
+    },
+    {
+      "timestamp": "2025-02-02T15:10:00",
+      "reading_kwh": 66.7
+    },
+    {
+      "timestamp": "2025-02-02T15:40:00",
+      "reading_kwh": 67.3
+    },
+    {
+      "timestamp": "2025-02-02T16:10:00",
+      "reading_kwh": 68.0
+    },
+    {
+      "timestamp": "2025-02-02T16:40:00",
+      "reading_kwh": 68.7
+    },
+    {
+      "timestamp": "2025-02-02T17:10:00",
+      "reading_kwh": 69.7
+    },
+    {
+      "timestamp": "2025-02-02T17:40:00",
+      "reading_kwh": 70.6
+    },
+    {
+      "timestamp": "2025-02-02T18:10:00",
+      "reading_kwh": 71.4
+    },
+    {
+      "timestamp": "2025-02-02T18:40:00",
+      "reading_kwh": 71.9
+    },
+    {
+      "timestamp": "2025-02-02T19:10:00",
+      "reading_kwh": 72.5
+    },
+    {
+      "timestamp": "2025-02-02T19:40:00",
+      "reading_kwh": 73.3
+    },
+    {
+      "timestamp": "2025-02-02T20:10:00",
+      "reading_kwh": 74.1
+    },
+    {
+      "timestamp": "2025-02-02T20:40:00",
+      "reading_kwh": 74.8
+    },
+    {
+      "timestamp": "2025-02-02T21:10:00",
+      "reading_kwh": 75.6
+    },
+    {
+      "timestamp": "2025-02-02T21:40:00",
+      "reading_kwh": 76.3
+    },
+    {
+      "timestamp": "2025-02-02T22:10:00",
+      "reading_kwh": 77.1
+    },
+    {
+      "timestamp": "2025-02-02T22:40:00",
+      "reading_kwh": 77.7
+    },
+    {
+      "timestamp": "2025-02-02T23:10:00",
+      "reading_kwh": 78.3
+    },
+    {
+      "timestamp": "2025-02-02T23:40:00",
+      "reading_kwh": 79.1
+    }
+  ],
+  "888-888-888": [
+    {
+      "timestamp": "2025-02-01T01:00:00",
+      "reading_kwh": 8.2
+    },
+    {
+      "timestamp": "2025-02-01T01:30:00",
+      "reading_kwh": 9.0
+    },
+    {
+      "timestamp": "2025-02-01T02:00:00",
+      "reading_kwh": 9.9
+    },
+    {
+      "timestamp": "2025-02-01T02:30:00",
+      "reading_kwh": 10.5
+    },
+    {
+      "timestamp": "2025-02-01T03:00:00",
+      "reading_kwh": 11.4
+    },
+    {
+      "timestamp": "2025-02-01T03:30:00",
+      "reading_kwh": 12.4
+    },
+    {
+      "timestamp": "2025-02-01T04:00:00",
+      "reading_kwh": 13.1
+    },
+    {
+      "timestamp": "2025-02-01T04:30:00",
+      "reading_kwh": 14.1
+    },
+    {
+      "timestamp": "2025-02-01T05:00:00",
+      "reading_kwh": 14.8
+    },
+    {
+      "timestamp": "2025-02-01T05:30:00",
+      "reading_kwh": 15.6
+    },
+    {
+      "timestamp": "2025-02-01T06:00:00",
+      "reading_kwh": 16.5
+    },
+    {
+      "timestamp": "2025-02-01T06:30:00",
+      "reading_kwh": 17.2
+    },
+    {
+      "timestamp": "2025-02-01T07:00:00",
+      "reading_kwh": 18.0
+    },
+    {
+      "timestamp": "2025-02-01T07:30:00",
+      "reading_kwh": 18.9
+    },
+    {
+      "timestamp": "2025-02-01T08:00:00",
+      "reading_kwh": 19.5
+    },
+    {
+      "timestamp": "2025-02-01T08:30:00",
+      "reading_kwh": 20.3
+    },
+    {
+      "timestamp": "2025-02-01T09:00:00",
+      "reading_kwh": 21.1
+    },
+    {
+      "timestamp": "2025-02-01T09:30:00",
+      "reading_kwh": 21.7
+    },
+    {
+      "timestamp": "2025-02-01T10:00:00",
+      "reading_kwh": 22.3
+    },
+    {
+      "timestamp": "2025-02-01T10:30:00",
+      "reading_kwh": 22.9
+    },
+    {
+      "timestamp": "2025-02-01T11:00:00",
+      "reading_kwh": 23.8
+    },
+    {
+      "timestamp": "2025-02-01T11:30:00",
+      "reading_kwh": 24.3
+    },
+    {
+      "timestamp": "2025-02-01T12:00:00",
+      "reading_kwh": 25.0
+    },
+    {
+      "timestamp": "2025-02-01T12:30:00",
+      "reading_kwh": 25.7
+    },
+    {
+      "timestamp": "2025-02-01T13:00:00",
+      "reading_kwh": 26.4
+    },
+    {
+      "timestamp": "2025-02-01T13:30:00",
+      "reading_kwh": 26.9
+    },
+    {
+      "timestamp": "2025-02-01T14:00:00",
+      "reading_kwh": 27.8
+    },
+    {
+      "timestamp": "2025-02-01T14:30:00",
+      "reading_kwh": 28.3
+    },
+    {
+      "timestamp": "2025-02-01T15:00:00",
+      "reading_kwh": 29.0
+    },
+    {
+      "timestamp": "2025-02-01T15:30:00",
+      "reading_kwh": 29.8
+    },
+    {
+      "timestamp": "2025-02-01T16:00:00",
+      "reading_kwh": 30.5
+    },
+    {
+      "timestamp": "2025-02-01T16:30:00",
+      "reading_kwh": 31.1
+    },
+    {
+      "timestamp": "2025-02-01T17:00:00",
+      "reading_kwh": 32.0
+    },
+    {
+      "timestamp": "2025-02-01T17:30:00",
+      "reading_kwh": 32.7
+    },
+    {
+      "timestamp": "2025-02-01T18:00:00",
+      "reading_kwh": 33.5
+    },
+    {
+      "timestamp": "2025-02-01T18:30:00",
+      "reading_kwh": 34.4
+    },
+    {
+      "timestamp": "2025-02-01T19:00:00",
+      "reading_kwh": 35.3
+    },
+    {
+      "timestamp": "2025-02-01T19:30:00",
+      "reading_kwh": 36.1
+    },
+    {
+      "timestamp": "2025-02-01T20:00:00",
+      "reading_kwh": 36.9
+    },
+    {
+      "timestamp": "2025-02-01T20:30:00",
+      "reading_kwh": 37.6
+    },
+    {
+      "timestamp": "2025-02-01T21:00:00",
+      "reading_kwh": 38.6
+    },
+    {
+      "timestamp": "2025-02-01T21:30:00",
+      "reading_kwh": 39.1
+    },
+    {
+      "timestamp": "2025-02-01T22:00:00",
+      "reading_kwh": 39.7
+    },
+    {
+      "timestamp": "2025-02-01T22:30:00",
+      "reading_kwh": 40.2
+    },
+    {
+      "timestamp": "2025-02-01T23:00:00",
+      "reading_kwh": 40.8
+    },
+    {
+      "timestamp": "2025-02-01T23:30:00",
+      "reading_kwh": 41.3
+    },
+    {
+      "timestamp": "2025-02-02T01:00:00",
+      "reading_kwh": 42.0
+    },
+    {
+      "timestamp": "2025-02-02T01:30:00",
+      "reading_kwh": 42.8
+    },
+    {
+      "timestamp": "2025-02-02T02:00:00",
+      "reading_kwh": 43.6
+    },
+    {
+      "timestamp": "2025-02-02T02:30:00",
+      "reading_kwh": 44.6
+    },
+    {
+      "timestamp": "2025-02-02T03:00:00",
+      "reading_kwh": 45.5
+    },
+    {
+      "timestamp": "2025-02-02T03:30:00",
+      "reading_kwh": 46.1
+    },
+    {
+      "timestamp": "2025-02-02T04:00:00",
+      "reading_kwh": 46.7
+    },
+    {
+      "timestamp": "2025-02-02T04:30:00",
+      "reading_kwh": 47.6
+    },
+    {
+      "timestamp": "2025-02-02T05:00:00",
+      "reading_kwh": 48.2
+    },
+    {
+      "timestamp": "2025-02-02T05:30:00",
+      "reading_kwh": 49.2
+    },
+    {
+      "timestamp": "2025-02-02T06:00:00",
+      "reading_kwh": 50.2
+    },
+    {
+      "timestamp": "2025-02-02T06:30:00",
+      "reading_kwh": 50.7
+    },
+    {
+      "timestamp": "2025-02-02T07:00:00",
+      "reading_kwh": 51.4
+    },
+    {
+      "timestamp": "2025-02-02T07:30:00",
+      "reading_kwh": 52.0
+    },
+    {
+      "timestamp": "2025-02-02T08:00:00",
+      "reading_kwh": 52.8
+    },
+    {
+      "timestamp": "2025-02-02T08:30:00",
+      "reading_kwh": 53.7
+    },
+    {
+      "timestamp": "2025-02-02T09:00:00",
+      "reading_kwh": 54.2
+    },
+    {
+      "timestamp": "2025-02-02T09:30:00",
+      "reading_kwh": 54.9
+    },
+    {
+      "timestamp": "2025-02-02T10:00:00",
+      "reading_kwh": 55.4
+    },
+    {
+      "timestamp": "2025-02-02T10:30:00",
+      "reading_kwh": 56.4
+    },
+    {
+      "timestamp": "2025-02-02T11:00:00",
+      "reading_kwh": 57.4
+    },
+    {
+      "timestamp": "2025-02-02T11:30:00",
+      "reading_kwh": 58.3
+    },
+    {
+      "timestamp": "2025-02-02T12:00:00",
+      "reading_kwh": 58.9
+    },
+    {
+      "timestamp": "2025-02-02T12:30:00",
+      "reading_kwh": 59.7
+    },
+    {
+      "timestamp": "2025-02-02T13:00:00",
+      "reading_kwh": 60.5
+    },
+    {
+      "timestamp": "2025-02-02T13:30:00",
+      "reading_kwh": 61.5
+    },
+    {
+      "timestamp": "2025-02-02T14:00:00",
+      "reading_kwh": 62.2
+    },
+    {
+      "timestamp": "2025-02-02T14:30:00",
+      "reading_kwh": 63.2
+    },
+    {
+      "timestamp": "2025-02-02T15:00:00",
+      "reading_kwh": 64.0
+    },
+    {
+      "timestamp": "2025-02-02T15:30:00",
+      "reading_kwh": 64.9
+    },
+    {
+      "timestamp": "2025-02-02T16:00:00",
+      "reading_kwh": 65.5
+    },
+    {
+      "timestamp": "2025-02-02T16:30:00",
+      "reading_kwh": 66.3
+    },
+    {
+      "timestamp": "2025-02-02T17:00:00",
+      "reading_kwh": 67.2
+    },
+    {
+      "timestamp": "2025-02-02T17:30:00",
+      "reading_kwh": 68.0
+    },
+    {
+      "timestamp": "2025-02-02T18:00:00",
+      "reading_kwh": 68.7
+    },
+    {
+      "timestamp": "2025-02-02T18:30:00",
+      "reading_kwh": 69.4
+    },
+    {
+      "timestamp": "2025-02-02T19:00:00",
+      "reading_kwh": 70.1
+    },
+    {
+      "timestamp": "2025-02-02T19:30:00",
+      "reading_kwh": 70.9
+    },
+    {
+      "timestamp": "2025-02-02T20:00:00",
+      "reading_kwh": 71.5
+    },
+    {
+      "timestamp": "2025-02-02T20:30:00",
+      "reading_kwh": 72.1
+    },
+    {
+      "timestamp": "2025-02-02T21:00:00",
+      "reading_kwh": 73.0
+    },
+    {
+      "timestamp": "2025-02-02T21:30:00",
+      "reading_kwh": 74.0
+    },
+    {
+      "timestamp": "2025-02-02T22:00:00",
+      "reading_kwh": 74.9
+    },
+    {
+      "timestamp": "2025-02-02T22:30:00",
+      "reading_kwh": 75.5
+    },
+    {
+      "timestamp": "2025-02-02T23:00:00",
+      "reading_kwh": 76.5
+    },
+    {
+      "timestamp": "2025-02-02T23:30:00",
+      "reading_kwh": 77.2
+    }
+  ]
+}
