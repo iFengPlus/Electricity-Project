@@ -1,1 +1,7 @@
 dash
+pandas
+json
+datetime
+threading
+OS
+plotly.graph_objects
