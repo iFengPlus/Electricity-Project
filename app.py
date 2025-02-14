@@ -7,6 +7,8 @@ import threading
 from datetime import datetime, timedelta
 import json
 
+
+
 def read_json_files(meter_data_path, registration_path):
     #read meter_data and Registration when restart
     try:
@@ -162,6 +164,48 @@ def government_query_page():
         html.Button("Back", id="btn-back", n_clicks=0, style={'margin-top': '10px'})
     ])
 
+
+def write_to_meter_data(meter_id, timestamp, reading_kwh):
+    """
+    更新 meter_data，将新的电表读数写入相应的 Meter ID 下。
+    """
+    global meter_data  # 确保修改全局变量
+
+    # 确保 meter_id 存在
+    if meter_id not in meter_data:
+        meter_data[meter_id] = []
+
+    # 添加新读数
+    meter_data[meter_id].append({
+        "timestamp": timestamp,
+        "reading_kwh": reading_kwh
+    })
+
+# Meter reading page
+def meter_reading_page():
+    return html.Div([
+        html.H1("Meter Readings"),
+        
+        # 用户输入
+        dcc.Input(id='meter_id', type='text', placeholder='Enter Meter ID'),
+        dcc.Input(id='timestamp', type='text', placeholder='Enter Timestamp (YYYY-MM-DDTHH:MM:SS)'),
+        dcc.Input(id='reading_kwh', type='number', placeholder='Enter kWh Reading'),
+        
+        # 提交按钮
+        html.Button('Submit', id='submit-btn', n_clicks=0),
+        
+        # 消息反馈
+        html.Div(id='message'),
+
+        # 数据自动刷新
+        dcc.Interval(id='interval-component', interval=2000, n_intervals=0),
+
+        # 数据展示
+        html.Div(id='data-display'),
+
+        # 返回主页按钮
+        html.Button("Back", id="btn-back", n_clicks=0, style={'margin-top': '10px'})
+    ])
 
 
 #rules for registration
@@ -355,6 +399,51 @@ def query_data(n_clicks, region, area, query_type):
 
 
 
+# rules for meter reading_1
+@app.callback(
+    Output('message', 'children'),
+    Input('submit-btn', 'n_clicks'),
+    [State('meter_id', 'value'),
+     State('timestamp', 'value'),
+     State('reading_kwh', 'value')]
+)
+def submit_reading(n_clicks, meter_id, timestamp, reading_kwh):
+    if n_clicks > 0 and meter_id and timestamp and reading_kwh is not None:
+        # **校验时间格式**
+        try:
+            datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            return "❌ Invalid Timestamp Format! Use YYYY-MM-DDTHH:MM:SS"
+        
+        # **存入 data_store（Dash 显示用）**
+        data_store.append({"meter_id": meter_id, "timestamp": timestamp, "reading_kwh": reading_kwh})
+        
+        # **存入 meter_data（主数据）**
+        write_to_meter_data(meter_id, timestamp, reading_kwh)
+
+        return "✅ Data submitted successfully!"
+    
+    return "⚠️ Please fill all fields!"
+
+# rules for meter reading_2
+@app.callback(
+    Output('data-display', 'children'),
+    Input('interval-component', 'n_intervals')
+)
+def update_data(n):
+    if not data_store:
+        return "No data available"
+
+    # 创建 DataFrame
+    df = pd.DataFrame(data_store)
+
+    # 生成 HTML 表格
+    return html.Table([
+        html.Tr([html.Th(col) for col in df.columns])
+    ] + [
+        html.Tr([html.Td(df.iloc[i][col]) for col in df.columns]) for i in range(len(df))
+    ])
+
 #change pages
 @app.callback(
     Output("page-content", "children"),
@@ -388,6 +477,7 @@ def update_page(user_reg_clicks, user_query_clicks, gov_query_clicks, meter_read
 
 if __name__ == '__main__':
     meter_data, registration_data = read_json_files("meter_data.json", "Registration.json")
+    data_store = []
     for meter_id in meter_data:
         for entry in meter_data[meter_id]:
             entry["timestamp"] = datetime.strptime(entry["timestamp"], "%Y-%m-%dT%H:%M:%S")
