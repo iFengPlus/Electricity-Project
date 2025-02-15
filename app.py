@@ -8,6 +8,17 @@ from datetime import datetime, timedelta
 import json
 
 
+# change format of time in meter_data
+def format_meter_data():
+    
+    global meter_data  
+
+    for meter_id in meter_data:
+        for entry in meter_data[meter_id]:
+            if isinstance(entry["timestamp"], str): 
+                entry["timestamp"] = datetime.strptime(entry["timestamp"], "%Y-%m-%dT%H:%M:%S")
+
+
 
 def read_json_files(meter_data_path, registration_path):
     #read meter_data and Registration when restart
@@ -273,6 +284,7 @@ def handle_user_query(login_clicks, query_clicks, user_id, query_type):
 
     # 查询电力使用
     elif triggered_id == "query-btn":
+        format_meter_data() 
         user = next((u for u in registration_data if u["userID"] == user_id), None)
         if not user:
             return ("❌ User not found.", {"display": "none"}, "No user data available.", go.Figure())
@@ -290,7 +302,8 @@ def handle_user_query(login_clicks, query_clicks, user_id, query_type):
         if query_type == "last_30_min":
             start_time = now - timedelta(minutes=30)
         elif query_type == "today":
-            start_time = now.replace(hour=0, minute=0, second=0)
+            start_time = max((r["timestamp"] for r in readings if now.replace(hour=0, minute=0, second=0) - timedelta(days=1) <= r["timestamp"] < now.replace(hour=0, minute=0, second=0)),
+            default=now.replace(hour=0, minute=0, second=0) - timedelta(days=1))
         elif query_type == "yesterday":
             start_time = now - timedelta(days=1)
             end_time = start_time + timedelta(hours=24)
@@ -352,15 +365,18 @@ def query_data(n_clicks, region, area, query_type):
     if not readings:
         return "No data found for this selection.", go.Figure()
 
+    format_meter_data() 
     latest_timestamp = max(r["timestamp"] for r in readings)
     now = latest_timestamp
     results = {}
+    
 
     # 过滤时间段
     if query_type == "last_30_min":
         start_time = now - timedelta(minutes=30)
     elif query_type == "today":
-        start_time = now.replace(hour=0, minute=0, second=0)
+            start_time = max((r["timestamp"] for r in readings if now.replace(hour=0, minute=0, second=0) - timedelta(days=1) <= r["timestamp"] < now.replace(hour=0, minute=0, second=0)),
+            default=now.replace(hour=0, minute=0, second=0) - timedelta(days=1))
     elif query_type == "yesterday":
         start_time = now - timedelta(days=1)
         end_time = start_time + timedelta(hours=24)
