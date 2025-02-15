@@ -200,18 +200,34 @@ def government_query_page():
 
 
 def write_to_meter_data(meter_id, timestamp, reading_kwh):
-   
     global meter_data  # 确保修改全局变量
 
-    # 确保 meter_id 存在
+    # **✅ 确保 timestamp 是 datetime 类型**
+    if isinstance(timestamp, str):
+        timestamp = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+
+    # **✅ 确保 meter_id 存在**
     if meter_id not in meter_data:
         meter_data[meter_id] = []
 
-    # 添加新读数
-    meter_data[meter_id].append({
-        "timestamp": timestamp,
-        "reading_kwh": reading_kwh
-    })
+    # **✅ 确保 meter_data 里的时间戳是 datetime 类型**
+    for entry in meter_data[meter_id]:
+        if isinstance(entry["timestamp"], str):
+            entry["timestamp"] = datetime.strptime(entry["timestamp"], "%Y-%m-%dT%H:%M:%S")
+
+    # **✅ 检查是否已经存在相同时间戳**
+    for entry in meter_data[meter_id]:
+        if entry["timestamp"] == timestamp:
+            return "❌ Error: Duplicate timestamp. Data not inserted."
+
+    # **✅ 找到插入位置**
+    index = 0
+    while index < len(meter_data[meter_id]) and meter_data[meter_id][index]["timestamp"] < timestamp:
+        index += 1
+
+    # **✅ 插入数据**
+    meter_data[meter_id].insert(index, {"timestamp": timestamp, "reading_kwh": reading_kwh})
+    return "✅ Data inserted successfully!"
 
 # Meter reading page
 def meter_reading_page():
@@ -458,21 +474,21 @@ def query_data(n_clicks, region, area, query_type):
 )
 def submit_reading(n_clicks, meter_id, timestamp, reading_kwh):
     if n_clicks > 0 and meter_id and timestamp and reading_kwh is not None:
-        # **校验时间格式**
         try:
-            datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+            timestamp = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
         except ValueError:
-            return "❌ Invalid Timestamp Format! Use YYYY-MM-DDTHH:MM:SS"
+            return "Invalid Timestamp Format Use YYYY-MM-DDTHH:MM:SS"
         
-        # **存入 data_store（Dash 显示用）**
-        data_store.append({"meter_id": meter_id, "timestamp": timestamp, "reading_kwh": reading_kwh})
-        
-        # **存入 meter_data（主数据）**
-        write_to_meter_data(meter_id, timestamp, reading_kwh)
+        result = write_to_meter_data(meter_id, timestamp, reading_kwh)
 
-        return "✅ Data submitted successfully!"
+        if "Error" not in result:
+            data_store.append({"meter_id": meter_id, "timestamp": timestamp.strftime("%Y-%m-%dT%H:%M:%S"),
+                               "reading_kwh": reading_kwh})
+
+        return result 
     
-    return "⚠️ Please fill all fields!"
+    return "Please fill all fields"
+
 
 # rules for meter reading_2
 @app.callback(
