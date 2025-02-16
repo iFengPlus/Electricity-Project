@@ -19,33 +19,38 @@ def format_meter_data():
                 entry["timestamp"] = datetime.strptime(entry["timestamp"], "%Y-%m-%dT%H:%M:%S")
 
 
-
 def read_json_files(meter_data_path, registration_path):
-    #read meter_data and Registration when restart
     try:
-        with open(meter_data_path, 'r', encoding='utf-8') as file:
-            meter_data = json.load(file)
-        
-        with open(registration_path, 'r', encoding='utf-8') as file:
-            registration_data = json.load(file)
-        
+        # 加载 meter_data
+        if os.path.exists(meter_data_path):
+            with open(meter_data_path, 'r', encoding='utf-8') as file:
+                meter_data = json.load(file) or {}  # 读取失败就返回空字典
+        else:
+            meter_data = {}
+
+        # 加载 registration_data
+        if os.path.exists(registration_path):
+            with open(registration_path, 'r', encoding='utf-8') as file:
+                registration_data = json.load(file) or {"registered_users": {}, "unregistered_meters": {}}
+        else:
+            registration_data = {"registered_users": {}, "unregistered_meters": {}}
+
         return meter_data, registration_data
-    
-    except FileNotFoundError as e:
-        print(f"File not found: {e}")
-        return None, None
+
     except json.JSONDecodeError as e:
         print(f"JSON decode error: {e}")
-        return None, None
+        return {}, {"registered_users": {}, "unregistered_meters": {}}
+
+
 
 
 # Use depends on situation, already load data when prog start
 
 
 def save_user(data):
-    #load Registration data
     with open(registration_data_location, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
+
 
 def save_meter(data):
     for meter_id in data:
@@ -282,31 +287,43 @@ def bind_meter(n_clicks, meter_id, user_id):
     if not meter_id or not user_id:
         return "Error: meterID and userID are required."
 
+    print("📌 当前 registered_users:", registration_data["registered_users"])  # ✅ 打印数据
+
     with lock:
-        data = registration_data
+        # ✅ **检查 userID 是否已绑定其他 meter**
+        if user_id in registration_data["registered_users"]:
+            return f"Error: userID {user_id} is already bound to another meter."
 
-        for record in data:
-            if record["meterID"] == meter_id:
-                if record["userID"] == "NA":
-                    for rec in data:
-                        if rec["userID"] == user_id and rec["meterID"] != meter_id:
-                            return "Error: userID already exists, choose another."
+        # ✅ **查找 meterID 是否已经被注册**
+        existing_user = next(
+            (uid for uid, data in registration_data["registered_users"].items() if data.get("meterID") == meter_id),
+            None
+        )
 
-                    record["userID"] = user_id
-                    record["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-                    save_user(data)
-                    return "Binding Successful!"
-                else:
-                    for rec in data:
-                        if rec["userID"] == user_id and rec["meterID"] != meter_id:
-                            return "Error: userID already exists, choose another."
+        print(f"🔍 搜索 meterID {meter_id}，找到用户ID: {existing_user}")  # ✅ 打印搜索结果
 
-                    record["userID"] = user_id
-                    record["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-                    save_user(data)
-                    return "Update Successful!"
+        if existing_user:
+            # ✅ **解绑旧 userID，绑定新 userID**
+            registration_data["registered_users"][user_id] = registration_data["registered_users"].pop(existing_user)
+            save_user(registration_data)
+            return "Binding Successful!"
 
-        return "Error: meterID not found."
+        # ✅ **查找 meterID 是否在 `unregistered_meters`**
+        elif meter_id in registration_data["unregistered_meters"]:
+            meter_info = registration_data["unregistered_meters"].pop(meter_id)  # 取出 meter 数据
+            meter_info["meterID"] = meter_id  # **确保 meterID 也存入**
+            registration_data["registered_users"][user_id] = meter_info  # **绑定到用户**
+            save_user(registration_data)
+            return "Binding Successful!"
+
+        # ❌ **meterID 不存在**
+        return f"Error: meterID {meter_id} not found."
+
+    return "Error: Unexpected issue occurred."
+
+
+
+
 
 #rules for user query
 @app.callback(

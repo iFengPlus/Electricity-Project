@@ -1,152 +1,126 @@
-[
-    {
-        "meterID": "111-111-111",
-        "area": "Bishan",
-        "region": "Central Region",
-        "userID": "11"
+{
+    "registered_users": {
+        "001002": {
+            "meterID": "333-333-333",
+            "area": "Yishun",
+            "region": "North Region",
+            "timestamp": "2025-02-16T13:35:23"
+        },
+        "001004": {
+            "meterID": "444-444-444",
+            "area": "Outram",
+            "region": "Central Region"
+        },
+        "001025": {
+            "meterID": "555-555-555",
+            "area": "Kallang",
+            "region": "Central Region"
+        },
+        "001006": {
+            "meterID": "666-666-666",
+            "area": "North Region",
+            "region": "North Region"
+        },
+        "001007": {
+            "meterID": "777-777-777",
+            "area": "Bukit Batok",
+            "region": "West Region"
+        },
+        "1002": {
+            "meterID": "888-888-888",
+            "area": "Sengkang",
+            "region": "North East Region"
+        },
+        "001009": {
+            "meterID": "999-999-999",
+            "area": "Clementi",
+            "region": "West Region"
+        },
+        "001026": {
+            "meterID": "101-010-101",
+            "area": "Woodlands",
+            "region": "North Region"
+        },
+        "001011": {
+            "meterID": "111-111-112",
+            "area": "Choa Chu Kang",
+            "region": "West Region"
+        },
+        "001027": {
+            "meterID": "121-212-121",
+            "area": "Serangoon",
+            "region": "North East Region"
+        },
+        "001013": {
+            "meterID": "131-313-131",
+            "area": "Central Region",
+            "region": "Central Region"
+        },
+        "001014": {
+            "meterID": "141-414-141",
+            "area": "Tampines",
+            "region": "East Region"
+        },
+        "001028": {
+            "meterID": "151-515-151",
+            "area": "North East Region",
+            "region": "North East Region"
+        },
+        "001016": {
+            "meterID": "161-616-161",
+            "area": "Ang Mo Kio",
+            "region": "North East Region"
+        },
+        "001029": {
+            "meterID": "171-717-171",
+            "area": "Toa Payoh",
+            "region": "Central Region"
+        },
+        "001018": {
+            "meterID": "181-818-181",
+            "area": "Bedok",
+            "region": "East Region"
+        },
+        "001030": {
+            "meterID": "191-919-191",
+            "area": "East Region",
+            "region": "East Region"
+        },
+        "001020": {
+            "meterID": "202-020-202",
+            "area": "Jurong East",
+            "region": "West Region"
+        },
+        "001031": {
+            "meterID": "212-121-212",
+            "area": "Hougang",
+            "region": "North East Region"
+        },
+        "001032": {
+            "meterID": "232-323-232",
+            "area": "West Region",
+            "region": "West Region"
+        },
+        "111": {
+            "meterID": "111-111-111",
+            "area": "Bishan",
+            "region": "Central Region"
+        },
+        "11111": {
+            "area": "West Region",
+            "region": "West Region",
+            "meterID": "242-424-242"
+        },
+        "1214": {
+            "meterID": "222-222-222",
+            "area": "Bukit Merah",
+            "region": "Central Region"
+        }
     },
-    {
-        "meterID": "222-222-222",
-        "area": "Yishun",
-        "region": "North Region",
-        "userID": "001001"
-    },
-    {
-        "meterID": "333-333-333",
-        "area": "Yishun",
-        "region": "North Region",
-        "userID": "001024"
-    },
-    {
-        "meterID": "444-444-444",
-        "area": "Outram",
-        "region": "Central Region",
-        "userID": "001004"
-    },
-    {
-        "meterID": "555-555-555",
-        "area": "Kallang",
-        "region": "Central Region",
-        "userID": "001025"
-    },
-    {
-        "meterID": "666-666-666",
-        "area": "North Region",
-        "region": "North Region",
-        "userID": "001006"
-    },
-    {
-        "meterID": "777-777-777",
-        "area": "Bukit Batok",
-        "region": "West Region",
-        "userID": "001007"
-    },
-    {
-        "meterID": "888-888-888",
-        "area": "Sengkang",
-        "region": "North East Region",
-        "userID": "1002"
-    },
-    {
-        "meterID": "999-999-999",
-        "area": "Clementi",
-        "region": "West Region",
-        "userID": "001009"
-    },
-    {
-        "meterID": "101-010-101",
-        "area": "Woodlands",
-        "region": "North Region",
-        "userID": "001026"
-    },
-    {
-        "meterID": "111-111-112",
-        "area": "Choa Chu Kang",
-        "region": "West Region",
-        "userID": "001011"
-    },
-    {
-        "meterID": "121-212-121",
-        "area": "Serangoon",
-        "region": "North East Region",
-        "userID": "001027"
-    },
-    {
-        "meterID": "131-313-131",
-        "area": "Central Region",
-        "region": "Central Region",
-        "userID": "001013"
-    },
-    {
-        "meterID": "141-414-141",
-        "area": "Tampines",
-        "region": "East Region",
-        "userID": "001014"
-    },
-    {
-        "meterID": "151-515-151",
-        "area": "North East Region",
-        "region": "North East Region",
-        "userID": "001028"
-    },
-    {
-        "meterID": "161-616-161",
-        "area": "Ang Mo Kio",
-        "region": "North East Region",
-        "userID": "001016"
-    },
-    {
-        "meterID": "171-717-171",
-        "area": "Toa Payoh",
-        "region": "Central Region",
-        "userID": "001029"
-    },
-    {
-        "meterID": "181-818-181",
-        "area": "Bedok",
-        "region": "East Region",
-        "userID": "001018"
-    },
-    {
-        "meterID": "191-919-191",
-        "area": "East Region",
-        "region": "East Region",
-        "userID": "001030"
-    },
-    {
-        "meterID": "202-020-202",
-        "area": "Jurong East",
-        "region": "West Region",
-        "userID": "001020"
-    },
-    {
-        "meterID": "212-121-212",
-        "area": "Hougang",
-        "region": "North East Region",
-        "userID": "001031"
-    },
-    {
-        "meterID": "222-222-222",
-        "area": "Bukit Merah",
-        "region": "Central Region",
-        "userID": "001022"
-    },
-    {
-        "meterID": "232-323-232",
-        "area": "West Region",
-        "region": "West Region",
-        "userID": "001032"
-    },
-    {
-        "meterID": "242-424-242",
-        "area": "East Region",
-        "region": "Central Region",
-        "userID": "NA"
-    },
-    {
-        "meterID": "252-525-252",
-        "area": "West Region",
-        "region": "West Region",
-        "userID": "NA"
+    "unregistered_meters": {
+        "252-525-252": {
+            "area": "West Region",
+            "region": "West Region"
+        }
     }
-]
+}
