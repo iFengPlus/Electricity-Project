@@ -60,6 +60,10 @@ def get_reading_at(readings, target_time):
     readings_sorted = sorted(readings, key=lambda x: abs(x["timestamp"] - target_time))
     return readings_sorted[0]["reading_kwh"] if readings_sorted else None   
 
+def get_reading(reading, timestamp):
+    """取得最接近指定時間戳的讀數"""
+    closest_reading = min(reading, key=lambda r: abs(r["timestamp"] - timestamp))
+    return closest_reading["reading_kwh"]
 
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 lock = threading.Lock()
@@ -339,14 +343,14 @@ def handle_user_query(login_clicks, query_clicks, user_id, query_type):
 
 #rules for government query_1
 @app.callback(
-    [Output("area-dropdown", "options")],
+    Output("area-dropdown", "options"),
     Input("region-dropdown", "value")
 )
 def update_area_options(selected_region):
     if selected_region:
         areas = sorted(set(u["area"] for u in registration_data if u["region"] == selected_region))
-        return [[{"label": area, "value": area} for area in areas]]
-    return [[]]
+        return [{"label": area, "value": area} for area in areas]
+    return []
 
 
 #rules for government query_2
@@ -359,61 +363,64 @@ def query_data(n_clicks, region, area, query_type):
     if not (region and area and query_type):
         return "Please select region, area, and time period.", go.Figure()
 
+    # Get all meter IDs in the selected region and area
     meter_ids = [u["meterID"] for u in registration_data if u["region"] == region and u["area"] == area]
-    readings = [r for m in meter_ids if m in meter_data for r in meter_data[m]]
     
+    # Extract all readings for these meter IDs
+    readings = [r for m in meter_ids if m in meter_data for r in meter_data[m]]
+
     if not readings:
         return "No data found for this selection.", go.Figure()
 
-    format_meter_data() 
-    latest_timestamp = max(r["timestamp"] for r in readings)
-    now = latest_timestamp
-    results = {}
-    
+    # Sort all readings by timestamp
+    combined_reading = sorted(readings, key=lambda x: x["timestamp"])
 
-    # 过滤时间段
+    # Get the latest timestamp for the data
+    latest_timestamp = max(r["timestamp"] for r in combined_reading)
+    now = latest_timestamp
+    filtered_reading = []
+
+    # Determine the start time based on the selected query type
     if query_type == "last_30_min":
         start_time = now - timedelta(minutes=30)
     elif query_type == "today":
-            start_time = max((r["timestamp"] for r in readings if now.replace(hour=0, minute=0, second=0) - timedelta(days=1) <= r["timestamp"] < now.replace(hour=0, minute=0, second=0)),
-            default=now.replace(hour=0, minute=0, second=0) - timedelta(days=1))
+        start_time = now.replace(hour=0, minute=0, second=0)
     elif query_type == "yesterday":
-        start_time = now - timedelta(days=1)
+        start_time = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0)
         end_time = start_time + timedelta(hours=24)
     elif query_type == "past_week":
         start_time = now - timedelta(days=7)
     elif query_type == "past_month":
         start_time = now - timedelta(days=30)
 
+    # Filter readings based on the selected time period
     if query_type == "yesterday":
-        filtered_readings = [r for r in readings if start_time <= r["timestamp"] < end_time]
+        filtered_reading = [r for r in combined_reading if start_time <= r["timestamp"] < end_time]
     else:
-        filtered_readings = [r for r in readings if r["timestamp"] >= start_time]
+        filtered_reading = [r for r in combined_reading if r["timestamp"] >= start_time]
 
-    if not filtered_readings:
+    if not filtered_reading:
         return ("⚠️ No Data Available", go.Figure())
 
-    results["usage"] = get_reading_at(filtered_readings, max(r["timestamp"] for r in filtered_readings)) - \
-                       get_reading_at(filtered_readings, min(r["timestamp"] for r in filtered_readings))
+    # Calculate new electricity usage by subtracting the first and last readings in the filtered period
+    first_reading = min(filtered_reading, key=lambda r: r["timestamp"])
+    last_reading = max(filtered_reading, key=lambda r: r["timestamp"])
+    new_usage = last_reading["reading_kwh"] - first_reading["reading_kwh"]
 
-    timestamps = [r["timestamp"] for r in filtered_readings]
-    consumption = [r["reading_kwh"] for r in filtered_readings]
+    # Plot data for new electricity usage
+    timestamps = [r["timestamp"] for r in filtered_reading]
+    consumption = [r["reading_kwh"] for r in filtered_reading]
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=timestamps, y=consumption, mode="lines+markers", name="Electricity Usage"))
-
     fig.update_layout(
-        title="Electricity Consumption Over Selected Period",
+        title=f"Electricity Consumption Over Selected Period ({query_type})",
         xaxis_title="Time",
         yaxis_title="Usage (kWh)",
-        xaxis=dict(showgrid=True),
-        yaxis=dict(showgrid=True),
         template="plotly_white"
     )
 
-    return (f"⚡ Electricity usage: {results['usage']} kWh", fig)
-
-
+    return (f"⚡ New electricity usage: {new_usage:.2f} kWh", fig)
 
 # rules for meter reading_1
 @app.callback(
