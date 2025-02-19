@@ -281,8 +281,6 @@ def meter_reading_page():
 
         # display
         html.Div(id='data-display'),
-
-        html.Button("Back", id="btn-back", n_clicks=0, style={'margin-top': '10px'})
     ])
 
 
