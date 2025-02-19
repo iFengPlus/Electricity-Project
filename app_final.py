@@ -7,6 +7,7 @@ import threading
 from datetime import datetime, timedelta
 import json
 import time
+from collections import defaultdict
 
 
 # ↓ Some Key Functions ↓
@@ -69,10 +70,6 @@ def shutdown_server():
 def get_reading_at(readings, target_time):
     readings_sorted = sorted(readings, key=lambda x: abs(x["timestamp"] - target_time))
     return readings_sorted[0]["reading_kwh"] if readings_sorted else None   
-
-def get_reading(reading, timestamp):
-    closest_reading = min(reading, key=lambda r: abs(r["timestamp"] - timestamp))
-    return closest_reading["reading_kwh"]
 
 # Data Insert Function
 # HOYT PLS CHECK HERE
@@ -458,9 +455,34 @@ def update_area_options(selected_region):
         areas = sorted(set(u["area"] for u in registration_data if u["region"] == selected_region))
         return [{"label": area, "value": area} for area in areas]
     return []
+def get_time_window(readings, query_type):
+    if not readings:
+        return None, None
+    latest_timestamp = max(r["timestamp"] for r in readings)
+    # 使用該 meter 最新資料作為參考時間
+    if query_type == "last_30_min":
+        start_time = latest_timestamp - timedelta(minutes=30)
+        end_time = latest_timestamp
+    elif query_type == "today":
+        start_time = latest_timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_time = latest_timestamp
+    elif query_type == "yesterday":
+        start_time = (latest_timestamp - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        end_time = start_time + timedelta(days=1)
+    elif query_type == "past_week":
+        start_time = latest_timestamp - timedelta(days=7)
+        end_time = latest_timestamp
+    elif query_type == "past_month":
+        start_time = latest_timestamp - timedelta(days=30)
+        end_time = latest_timestamp
+    else:
+        start_time, end_time = None, None
+    return start_time, end_time
 
-
-#rules for government query_2
+# Helper function：將時間取整到最近的半小時（下限）
+def floor_to_half_hour(dt):
+    minute = (dt.minute // 30) * 30
+    return dt.replace(minute=minute, second=0, microsecond=0)
 @app.callback(
     [Output("gov-query-result", "children"), Output("gov-usage-graph", "figure")],
     Input("query-btn", "n_clicks"),
@@ -469,65 +491,78 @@ def update_area_options(selected_region):
 def query_data(n_clicks, region, area, query_type):
     if not (region and area and query_type):
         return "Please select region, area, and time period.", go.Figure()
-
-    # Get all meter IDs in the selected region and area
-    meter_ids = [u["meterID"] for u in registration_data if u["region"] == region and u["area"] == area]
     
-    # Extract all readings for these meter IDs
-    readings = [r for m in meter_ids if m in meter_data for r in meter_data[m]]
+    # 根據所選 region 與 area 取得所有符合的註冊資料，進而取得 meter id
+    meters = [u["meterID"] for u in registration_data if u["region"] == region and u["area"] == area]
+    if not meters:
+        return "No registration data found for the selected region and area.", go.Figure()
+    
+    # 累加各時間區間的用電量
+    aggregated_consumption = defaultdict(float)
+    meter_count = 0  # 有資料的 meter 數量
+    for meter_id in meters:
+        if meter_id not in meter_data:
+            continue
+        readings = meter_data[meter_id]
+        # 取得查詢時間區間
+        start_time, end_time = get_time_window(readings, query_type)
+        if start_time is None:
+            continue
+        # 篩選符合時間區間的讀數
+        filtered_readings = [r for r in readings if start_time <= r["timestamp"] <= end_time]
+        if not filtered_readings:
+            continue
+        filtered_readings.sort(key=lambda x: x["timestamp"])
+        consumption = filtered_readings[-1]["reading_kwh"] - filtered_readings[0]["reading_kwh"]
+        
+        # 根據查詢類型決定分組單位
+        if query_type in ["past_week", "past_month"]:
+            # 以日期（天）為單位
+            bucket_key = filtered_readings[0]["timestamp"].date()
+        else:
+            # 以半小時為單位（向下取整）
+            bucket_key = floor_to_half_hour(filtered_readings[0]["timestamp"])
+        
+        aggregated_consumption[bucket_key] += consumption
+        meter_count += 1
 
-    if not readings:
-        return "No data found for this selection.", go.Figure()
+    if meter_count == 0:
+        return "⚠️ No electricity data found for the selected criteria.", go.Figure()
 
-    # Sort all readings by timestamp
-    combined_reading = sorted(readings, key=lambda x: x["timestamp"])
-
-    # Get the latest timestamp for the data
-    latest_timestamp = max(r["timestamp"] for r in combined_reading)
-    now = latest_timestamp
-    filtered_reading = []
-
-    # Determine the start time based on the selected query type
-    if query_type == "last_30_min":
-        start_time = now - timedelta(minutes=30)
-    elif query_type == "today":
-        start_time = now.replace(hour=0, minute=0, second=0)
-    elif query_type == "yesterday":
-        start_time = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0)
-        end_time = start_time + timedelta(hours=24)
-    elif query_type == "past_week":
-        start_time = now - timedelta(days=7)
-    elif query_type == "past_month":
-        start_time = now - timedelta(days=30)
-
-    # Filter readings based on the selected time period
-    if query_type == "yesterday":
-        filtered_reading = [r for r in combined_reading if start_time <= r["timestamp"] < end_time]
+    # 準備 x 軸與 y 軸資料
+    if query_type in ["past_week", "past_month"]:
+        # 補齊整個日期範圍，即使某天無資料也補 0
+        start_date = start_time.date()
+        end_date = end_time.date()
+        full_dates = []
+        current_day = start_date
+        while current_day <= end_date:
+            full_dates.append(current_day)
+            current_day += timedelta(days=1)
+        # x 軸：字串日期格式
+        x_values = [d.strftime("%Y-%m-%d") for d in full_dates]
+        y_values = [aggregated_consumption.get(d, 0) for d in full_dates]
+        x_axis_title = "Date"
     else:
-        filtered_reading = [r for r in combined_reading if r["timestamp"] >= start_time]
-
-    if not filtered_reading:
-        return (" No Data Available", go.Figure())
-
-    # Calculate new electricity usage by subtracting the first and last readings in the filtered period
-    first_reading = min(filtered_reading, key=lambda r: r["timestamp"])
-    last_reading = max(filtered_reading, key=lambda r: r["timestamp"])
-    new_usage = last_reading["reading_kwh"] - first_reading["reading_kwh"]
-
-    # Plot data for new electricity usage
-    timestamps = [r["timestamp"] for r in filtered_reading]
-    consumption = [r["reading_kwh"] for r in filtered_reading]
-
+        sorted_buckets = sorted(aggregated_consumption.keys())
+        x_values = [bucket.strftime("%Y-%m-%d %H:%M") for bucket in sorted_buckets]
+        y_values = [aggregated_consumption[bucket] for bucket in sorted_buckets]
+        x_axis_title = "Time (30-min Interval Start)"
+    
+    # 建立線圖（含資料點）
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=timestamps, y=consumption, mode="lines+markers", name="Electricity Usage"))
+    fig.add_trace(go.Scatter(x=x_values, y=y_values, mode="lines+markers", name="Electricity Usage"))
     fig.update_layout(
-        title=f"Electricity Consumption Over Selected Period ({query_type})",
-        xaxis_title="Time",
+        title="Electricity Consumption Over Selected Period",
+        xaxis_title=x_axis_title,
         yaxis_title="Usage (kWh)",
         template="plotly_white"
     )
-
-    return (f"New electricity usage: {new_usage:.2f} kWh", fig)
+    
+    total_usage = sum(y_values)
+    result_text = f"Electricity usage: {total_usage} kWh (across {meter_count} meter(s))"
+    
+    return result_text, fig
 
 # rules for meter reading_1(this one is for data transfer API, meter_data)
 #HOYT PLS CHECK HERE
