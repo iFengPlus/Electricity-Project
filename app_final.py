@@ -455,11 +455,11 @@ def update_area_options(selected_region):
         areas = sorted(set(u["area"] for u in registration_data if u["region"] == selected_region))
         return [{"label": area, "value": area} for area in areas]
     return []
+#rules for government query_2
 def get_time_window(readings, query_type):
     if not readings:
         return None, None
     latest_timestamp = max(r["timestamp"] for r in readings)
-    # 使用該 meter 最新資料作為參考時間
     if query_type == "last_30_min":
         start_time = latest_timestamp - timedelta(minutes=30)
         end_time = latest_timestamp
@@ -479,7 +479,6 @@ def get_time_window(readings, query_type):
         start_time, end_time = None, None
     return start_time, end_time
 
-# Helper function：將時間取整到最近的半小時（下限）
 def floor_to_half_hour(dt):
     minute = (dt.minute // 30) * 30
     return dt.replace(minute=minute, second=0, microsecond=0)
@@ -491,77 +490,108 @@ def floor_to_half_hour(dt):
 def query_data(n_clicks, region, area, query_type):
     if not (region and area and query_type):
         return "Please select region, area, and time period.", go.Figure()
-    
-    # 根據所選 region 與 area 取得所有符合的註冊資料，進而取得 meter id
+
     meters = [u["meterID"] for u in registration_data if u["region"] == region and u["area"] == area]
     if not meters:
         return "No registration data found for the selected region and area.", go.Figure()
-    
-    # 累加各時間區間的用電量
-    aggregated_consumption = defaultdict(float)
-    meter_count = 0  # 有資料的 meter 數量
+
+    meter_data_usage = {}
+    overall_start = None
+    overall_end = None
     for meter_id in meters:
         if meter_id not in meter_data:
             continue
         readings = meter_data[meter_id]
-        # 取得查詢時間區間
         start_time, end_time = get_time_window(readings, query_type)
         if start_time is None:
             continue
-        # 篩選符合時間區間的讀數
-        filtered_readings = [r for r in readings if start_time <= r["timestamp"] <= end_time]
-        if not filtered_readings:
+        filtered = [r for r in readings if start_time <= r["timestamp"] <= end_time]
+        if not filtered:
             continue
-        filtered_readings.sort(key=lambda x: x["timestamp"])
-        consumption = filtered_readings[-1]["reading_kwh"] - filtered_readings[0]["reading_kwh"]
-        
-        # 根據查詢類型決定分組單位
-        if query_type in ["past_week", "past_month"]:
-            # 以日期（天）為單位
-            bucket_key = filtered_readings[0]["timestamp"].date()
-        else:
-            # 以半小時為單位（向下取整）
-            bucket_key = floor_to_half_hour(filtered_readings[0]["timestamp"])
-        
-        aggregated_consumption[bucket_key] += consumption
-        meter_count += 1
+        filtered.sort(key=lambda r: r["timestamp"])
+        meter_data_usage[meter_id] = filtered
+        if overall_start is None or start_time < overall_start:
+            overall_start = start_time
+        if overall_end is None or end_time > overall_end:
+            overall_end = end_time
 
-    if meter_count == 0:
+    if not meter_data_usage:
         return "⚠️ No electricity data found for the selected criteria.", go.Figure()
-
-    # 準備 x 軸與 y 軸資料
-    if query_type in ["past_week", "past_month"]:
-        # 補齊整個日期範圍，即使某天無資料也補 0
-        start_date = start_time.date()
-        end_date = end_time.date()
-        full_dates = []
-        current_day = start_date
-        while current_day <= end_date:
-            full_dates.append(current_day)
-            current_day += timedelta(days=1)
-        # x 軸：字串日期格式
-        x_values = [d.strftime("%Y-%m-%d") for d in full_dates]
-        y_values = [aggregated_consumption.get(d, 0) for d in full_dates]
-        x_axis_title = "Date"
+    # filters(different time periods)
+    if query_type in ["today", "yesterday"]:
+        resolution = timedelta(hours=1)
+        fmt = "%Y-%m-%d %H:%M"
+        bucket_start = overall_start.replace(minute=0, second=0, microsecond=0)
+    elif query_type in ["past_week", "past_month"]:
+        resolution = timedelta(days=1)
+        fmt = "%Y-%m-%d"
+        bucket_start = overall_start.date()
+    elif query_type == "last_30_min":
+        resolution = timedelta(minutes=1)
+        fmt = "%Y-%m-%d %H:%M"
+        bucket_start = overall_start.replace(second=0, microsecond=0)
     else:
-        sorted_buckets = sorted(aggregated_consumption.keys())
-        x_values = [bucket.strftime("%Y-%m-%d %H:%M") for bucket in sorted_buckets]
-        y_values = [aggregated_consumption[bucket] for bucket in sorted_buckets]
-        x_axis_title = "Time (30-min Interval Start)"
-    
-    # 建立線圖（含資料點）
+        resolution = timedelta(hours=1)
+        fmt = "%Y-%m-%d %H:%M"
+        bucket_start = overall_start.replace(minute=0, second=0, microsecond=0)
+
+    buckets = []
+    if query_type in ["past_week", "past_month"]:
+        current = bucket_start
+        end_date = overall_end.date()
+        while current <= end_date:
+            buckets.append(current)
+            current += timedelta(days=1)
+    else:
+        current = bucket_start
+        while current <= overall_end:
+            buckets.append(current)
+            current += resolution
+
+    meter_cumulative = {} 
+    for meter_id, readings in meter_data_usage.items():
+        baseline = readings[0]["reading_kwh"]
+        time_series = {}
+        j = 0 
+        last_value = baseline
+        for bucket in buckets:
+            if query_type in ["past_week", "past_month"]:
+                while j < len(readings) and readings[j]["timestamp"].date() <= bucket:
+                    last_value = readings[j]["reading_kwh"]
+                    j += 1
+            else:
+                while j < len(readings) and readings[j]["timestamp"] <= bucket:
+                    last_value = readings[j]["reading_kwh"]
+                    j += 1
+            time_series[bucket] = last_value - baseline
+        meter_cumulative[meter_id] = time_series
+
+    # sum the usage
+    aggregated_cumulative = {}
+    for bucket in buckets:
+        total = 0
+        for meter_id in meter_cumulative:
+            total += meter_cumulative[meter_id].get(bucket, 0)
+        aggregated_cumulative[bucket] = total
+
+    if query_type in ["past_week", "past_month"]:
+        x_values = [bucket.strftime("%Y-%m-%d") for bucket in buckets]
+    else:
+        x_values = [bucket.strftime("%Y-%m-%d %H:%M") for bucket in buckets]
+    y_values = [aggregated_cumulative[bucket] for bucket in buckets]
+
+    # show the usage
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=x_values, y=y_values, mode="lines+markers", name="Electricity Usage"))
     fig.update_layout(
         title="Electricity Consumption Over Selected Period",
-        xaxis_title=x_axis_title,
-        yaxis_title="Usage (kWh)",
+        xaxis_title="Time" if query_type not in ["past_week", "past_month"] else "Date",
+        yaxis_title="Cumulative Usage (kWh)",
         template="plotly_white"
     )
-    
-    total_usage = sum(y_values)
-    result_text = f"Electricity usage: {total_usage} kWh (across {meter_count} meter(s))"
-    
+
+    total_usage = y_values[-1] if y_values else 0
+    result_text = f"Electricity usage: {total_usage} kWh (aggregated from {len(meter_cumulative)} meter(s))"
     return result_text, fig
 
 # rules for meter reading_1(this one is for data transfer API, meter_data)
