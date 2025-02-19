@@ -124,6 +124,7 @@ app.layout = html.Div([
         html.Button("User Query", id="btn-user-query", n_clicks=0, style={'margin': '5px'}),
         html.Button("Government Query", id="btn-gov-query", n_clicks=0, style={'margin': '5px'}),
         html.Button("Meter Reading", id="btn-meter-read", n_clicks=0, style={'margin': '5px'}),
+        html.Button("Aggregate Meter Data", id="aggregate-btn", n_clicks=0, style={'margin': '5px'}),
         html.Button("Server Shut Down", id="btn-shutdown", n_clicks=0, style={'margin': '5px', 'backgroundColor': 'red', 'color': 'white'}),
     ], style={'textAlign': 'center'}),
 
@@ -132,6 +133,7 @@ app.layout = html.Div([
     html.Button("Back", id="btn-back", n_clicks=0, style={'display': 'none'}),
     # change semi-pages
     html.Div(id="page-content", style={'padding': '20px'}),
+    html.Div(id="aggregate-result", style={'color': 'green', 'textAlign': 'center', 'margin': '10px'}),
 
     dcc.Location(id='shutdown-url', refresh=True),
 
@@ -294,7 +296,38 @@ def shutdown_page():
         ]
     )#dash cannot use /n or Enter to change lines, so after asking chatgpt, we use "\xa0"
 
+# data cleaning on a monthly basis
+def aggregate_meter_data():
+    global meter_data
+    
+    aggregated_data = {}
 
+    for meter_id, readings in meter_data.items():
+        monthly_totals = {}
+
+        for entry in readings:
+            timestamp = entry["timestamp"]
+            if isinstance(timestamp, str):
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+
+            month_key = timestamp.strftime("%Y-%m")  # e.g., "2024-02"
+            
+            # sum kWh
+            if month_key not in monthly_totals:
+                monthly_totals[month_key] = 0
+            monthly_totals[month_key] += entry["reading_kwh"]
+
+        aggregated_data[meter_id] = [
+            {"timestamp": f"{month_key}-01T00:00:00", "reading_kwh": total}
+            for month_key, total in monthly_totals.items()
+        ]
+
+    # cover the original data
+    meter_data = aggregated_data
+
+    # save the aggregated ones
+    save_meter(meter_data)
+    return "Aggregation completed! Monthly data saved."
 
 # ↓ Callback Functions ↓
 #rules for registration
@@ -587,6 +620,15 @@ def update_page(btn_user, btn_query, btn_gov, btn_meter, btn_shutdown):
 
     return html.Div("404 - Page Not Found")
 
+#for data cleaning on monthly basis
+@app.callback(
+    Output("aggregate-result", "children"),
+    Input("aggregate-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def trigger_aggregation(n_clicks):
+    result = aggregate_meter_data()
+    return result
 
 
 
