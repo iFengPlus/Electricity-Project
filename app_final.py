@@ -8,7 +8,9 @@ from datetime import datetime, timedelta
 import json
 import time
 
-# change format of time in meter_data
+
+# ↓ Some Key Functions ↓
+# change format of time in meter_data(str to datetime)
 def format_meter_data():
     
     global meter_data  
@@ -39,15 +41,13 @@ def read_json_files(meter_data_path, registration_path):
         return None, None
 
 
-# Use depends on situation, already load data when prog start
-
-
 def save_user(data):
-    #load Registration data
+    #Save Registration data to json file 
     with open(registration_data_location, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 def save_meter(data):
+    #Save Meter data to json file, but datetime can not store, so change format 1st.
     for meter_id in data:
         for entry in data[meter_id]:
             if isinstance(entry["timestamp"], datetime):
@@ -65,22 +65,57 @@ def shutdown_server():
     
     os._exit(0)
 
-# Helper function to find closest timestamp reading
+# Find closest timestamp when meter reading
 def get_reading_at(readings, target_time):
     readings_sorted = sorted(readings, key=lambda x: abs(x["timestamp"] - target_time))
     return readings_sorted[0]["reading_kwh"] if readings_sorted else None   
 
 
+# Data Insert Function
+# HOYT PLS CHECK HERE
+def write_to_meter_data(meter_id, timestamp, reading_kwh):
+    global meter_data  # make sure we change globally
+
+    # make sure format can use
+    if isinstance(timestamp, str):
+        timestamp = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+
+    # make sure have this meter in the list
+    if meter_id not in meter_data:
+        meter_data[meter_id] = []
+
+    # make sure data in list are in good structure and format
+    for entry in meter_data[meter_id]:
+        if isinstance(entry["timestamp"], str):
+            entry["timestamp"] = datetime.strptime(entry["timestamp"], "%Y-%m-%dT%H:%M:%S")
+
+    # Check 1: Is the timestamp already exist in meter_data?
+    for entry in meter_data[meter_id]:
+        if entry["timestamp"] == timestamp:
+            return "Error: Duplicate timestamp. Data not inserted."
+
+    # Check 2: Find the exact insert place
+    index = 0
+    while index < len(meter_data[meter_id]) and meter_data[meter_id][index]["timestamp"] < timestamp:
+        index += 1
+
+    # insert it
+    meter_data[meter_id].insert(index, {"timestamp": timestamp, "reading_kwh": reading_kwh})
+    return "Data inserted successfully!"
+
+
+# ↓ Dash App Codes ↓
+# Define dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 lock = threading.Lock()
 
 
 
-# 主页面 Layout
+# Main Page Layout
 app.layout = html.Div([
     html.H1("Smart Meter Management System", style={'textAlign': 'center'}),
 
-    # 🔹 导航栏（按钮切换页面）
+    # Navigation Column, for semi-apps change
     html.Div([
         html.Button("User Registration", id="btn-user-reg", n_clicks=0, style={'margin': '5px'}),
         html.Button("User Query", id="btn-user-query", n_clicks=0, style={'margin': '5px'}),
@@ -89,18 +124,15 @@ app.layout = html.Div([
         html.Button("Server Shut Down", id="btn-shutdown", n_clicks=0, style={'margin': '5px', 'backgroundColor': 'red', 'color': 'white'}),
     ], style={'textAlign': 'center'}),
 
-    html.Hr(),  # 分割线
+    html.Hr(),  # here I add a split line to beautify page
 
-    # 🔹 预定义 `btn-back`，避免 Dash 报错（默认隐藏）
     html.Button("Back", id="btn-back", n_clicks=0, style={'display': 'none'}),
-
-    # 🔹 这里动态切换子页面
+    # change semi-pages
     html.Div(id="page-content", style={'padding': '20px'}),
 
-    # 🔹 隐藏的 Location 组件，用于网页关闭
     dcc.Location(id='shutdown-url', refresh=True),
 
-    html.Div(id="shutdown-message")  # 用于显示关闭消息
+    html.Div(id="shutdown-message")
     
 ])
 
@@ -121,7 +153,6 @@ def user_registration_page():
         html.Button("Register", id='bind-btn', n_clicks=0),
         html.Div(id='bind-result', style={'color': 'blue', 'margin': '8px 0'}),
 
-        # 🔹 返回按钮
         html.Button("Back", id="btn-back", n_clicks=0, style={'margin-top': '10px'})
     ])
 
@@ -160,7 +191,7 @@ def user_query_page():
     ])
 
 # Government Query Page
-
+#SUNNY PLS CHANGE HERE
 def government_query_page():
     return html.Div([
         html.H2("Electricity Usage Query System (Government)"),
@@ -200,32 +231,32 @@ def government_query_page():
 
 
 def write_to_meter_data(meter_id, timestamp, reading_kwh):
-    global meter_data  # 确保修改全局变量
+    global meter_data  # make sure we change globally
 
-    # **✅ 确保 timestamp 是 datetime 类型**
+    # make sure format can use
     if isinstance(timestamp, str):
         timestamp = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
 
-    # **✅ 确保 meter_id 存在**
+    # make sure have this meter in the list
     if meter_id not in meter_data:
         meter_data[meter_id] = []
 
-    # **✅ 确保 meter_data 里的时间戳是 datetime 类型**
+    # make sure data in list are in good structure and format
     for entry in meter_data[meter_id]:
         if isinstance(entry["timestamp"], str):
             entry["timestamp"] = datetime.strptime(entry["timestamp"], "%Y-%m-%dT%H:%M:%S")
 
-    # **✅ 检查是否已经存在相同时间戳**
+    # Check 1: Is the timestamp already exist in meter_data?
     for entry in meter_data[meter_id]:
         if entry["timestamp"] == timestamp:
             return "❌ Error: Duplicate timestamp. Data not inserted."
 
-    # **✅ 找到插入位置**
+    # Check 2: Find the exact insert place
     index = 0
     while index < len(meter_data[meter_id]) and meter_data[meter_id][index]["timestamp"] < timestamp:
         index += 1
 
-    # **✅ 插入数据**
+    # insert it
     meter_data[meter_id].insert(index, {"timestamp": timestamp, "reading_kwh": reading_kwh})
     return "✅ Data inserted successfully!"
 
@@ -234,24 +265,23 @@ def meter_reading_page():
     return html.Div([
         html.H1("Meter Readings"),
         
-        # 用户输入
+        # 
         dcc.Input(id='meter_id', type='text', placeholder='Enter Meter ID'),
         dcc.Input(id='timestamp', type='text', placeholder='Enter Timestamp (YYYY-MM-DDTHH:MM:SS)'),
         dcc.Input(id='reading_kwh', type='number', placeholder='Enter kWh Reading'),
         
-        # 提交按钮
+        # Submit button
         html.Button('Submit', id='submit-btn', n_clicks=0),
         
-        # 消息反馈
+        # message respond
         html.Div(id='message'),
 
-        # 数据自动刷新
+        # data refresh automatically
         dcc.Interval(id='interval-component', interval=2000, n_intervals=0),
 
-        # 数据展示
+        # display
         html.Div(id='data-display'),
 
-        # 返回主页按钮
         html.Button("Back", id="btn-back", n_clicks=0, style={'margin-top': '10px'})
     ])
 
@@ -260,14 +290,16 @@ def meter_reading_page():
 # after-shoutdown page layout
 def shutdown_page():
     return html.Div(
-        style={"textAlign": "center", "fontSize": "24px", "marginTop": "10%"},  # ✅ 进一步向上调整位置
+        style={"textAlign": "center", "fontSize": "24px", "marginTop": "10%"},  # location define
         children=[
             "Now is 0:00 lah! Server also need a rest🌙", html.Br(), html.Br(),
             "Good Night!\xa0\xa0\xa0\xa0晚安!\xa0\xa0\xa0\xa0Selamat Malam!\xa0\xa0\xa0\xa0இனிய இரவு!"
         ]
-    )
+    )#dash cannot use /n or Enter to change lines, so after asking chatgpt, we use "\xa0"
 
 
+
+# ↓ Callback Functions ↓
 #rules for registration
 @app.callback(
     Output('bind-result', 'children'),
@@ -321,33 +353,33 @@ def bind_meter(n_clicks, meter_id, user_id):
 def handle_user_query(login_clicks, query_clicks, user_id, query_type):
     triggered_id = ctx.triggered_id  
 
-    # 用户登录
+    # User login (delete password requirement here)
     if triggered_id == "login-btn":
         user = next((u for u in registration_data if u["userID"] == user_id), None)
         if user:
             return (f"Login successful! Meter ID: {user['meterID']}", 
                     {"display": "block"}, "", go.Figure())
         else:
-            return ("❌ User not found. Please enter a valid User ID.", 
+            return ("User not found. Please enter a valid User ID.", 
                     {"display": "none"}, "", go.Figure())
 
-    # 查询电力使用
+    # query button
     elif triggered_id == "query-btn":
         format_meter_data() 
         user = next((u for u in registration_data if u["userID"] == user_id), None)
         if not user:
-            return ("❌ User not found.", {"display": "none"}, "No user data available.", go.Figure())
+            return ("User not found.", {"display": "none"}, "No user data available.", go.Figure())
 
         meter_id = user["meterID"]
         if meter_id not in meter_data:
-            return ("⚠️ No electricity data found.", {"display": "block"}, "No data for this meter.", go.Figure())
+            return ("No electricity data found.", {"display": "block"}, "No data for this meter.", go.Figure())
 
         readings = meter_data[meter_id]
         latest_timestamp = max(r["timestamp"] for r in readings) 
         now = latest_timestamp
         results = {}
 
-        # 过滤时间段
+        # filters(different time periods)
         if query_type == "last_30_min":
             start_time = now - timedelta(minutes=30)
         elif query_type == "today":
@@ -366,13 +398,13 @@ def handle_user_query(login_clicks, query_clicks, user_id, query_type):
             filtered_readings = [r for r in readings if start_time <= r["timestamp"] < end_time]
 
         if not filtered_readings:
-            return ("⚠️ No Data Available", {"display": "block"}, "No electricity data found for this period.", go.Figure())
+            return ("No Data Available", {"display": "block"}, "No electricity data found for this period.", go.Figure())
 
-        # 计算电力使用量
+        # calculate electricity usage
         results["usage"] = get_reading_at(filtered_readings, max(r["timestamp"] for r in filtered_readings)) - \
                            get_reading_at(filtered_readings, min(r["timestamp"] for r in filtered_readings))
 
-        # 绘制图表
+        # charts
         timestamps = [r["timestamp"] for r in filtered_readings]
         consumption = [r["reading_kwh"] for r in filtered_readings]
 
@@ -382,11 +414,12 @@ def handle_user_query(login_clicks, query_clicks, user_id, query_type):
                           xaxis_title="Time", yaxis_title="Usage (kWh)",
                           template="plotly_white")
 
-        return (f"⚡ Electricity usage: {results['usage']} kWh", {"display": "block"}, "", fig)
+        return (f"Electricity usage: {results['usage']} kWh", {"display": "block"}, "", fig)
 
     return ("", {"display": "none"}, "", go.Figure())
 
 #rules for government query_1
+#SUNNY PLS CHANGE HERE
 @app.callback(
     [Output("area-dropdown", "options")],
     Input("region-dropdown", "value")
@@ -399,6 +432,7 @@ def update_area_options(selected_region):
 
 
 #rules for government query_2
+#SUNNY PLS CHANGE HERE
 @app.callback(
     [Output("gov-query-result", "children"), Output("gov-usage-graph", "figure")],
     Input("query-btn", "n_clicks"),
@@ -420,7 +454,7 @@ def query_data(n_clicks, region, area, query_type):
     results = {}
     
 
-    # 过滤时间段
+    # time filter
     if query_type == "last_30_min":
         start_time = now - timedelta(minutes=30)
     elif query_type == "today":
@@ -464,7 +498,8 @@ def query_data(n_clicks, region, area, query_type):
 
 
 
-# rules for meter reading_1
+# rules for meter reading_1(this one is for data transfer API, meter_data)
+#HOYT PLS CHECK HERE
 @app.callback(
     Output('message', 'children'),
     Input('submit-btn', 'n_clicks'),
@@ -490,7 +525,8 @@ def submit_reading(n_clicks, meter_id, timestamp, reading_kwh):
     return "Please fill all fields"
 
 
-# rules for meter reading_2
+# rules for meter reading_2(this one is for data display)
+#HOYT PLS CHECK HERE
 @app.callback(
     Output('data-display', 'children'),
     Input('interval-component', 'n_intervals')
@@ -499,10 +535,10 @@ def update_data(n):
     if not data_store:
         return "No data available"
 
-    # 创建 DataFrame
+    # create DataFrame
     df = pd.DataFrame(data_store)
 
-    # 生成 HTML 表格
+    # generate a table for uploaded data(data_store)
     return html.Table([
         html.Tr([html.Th(col) for col in df.columns])
     ] + [
@@ -559,6 +595,7 @@ def update_page(btn_user, btn_query, btn_gov, btn_meter, btn_shutdown):
 
 
 
+# ↓ Main Fucnction, App Execution ↓
 if __name__ == '__main__':
     registration_data_location = "Registration.json"
     meter_data_location = "meter_data.json"
