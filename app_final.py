@@ -72,7 +72,6 @@ def get_reading_at(readings, target_time):
     return readings_sorted[0]["reading_kwh"] if readings_sorted else None   
 
 # Data Insert Function
-# HOYT PLS CHECK HERE
 def write_to_meter_data(meter_id, timestamp, reading_kwh):
     global meter_data  # make sure we change globally
 
@@ -630,7 +629,6 @@ def query_data(n_clicks, region, area, query_type):
     return result_text, fig
 
 # rules for meter reading_1(this one is for data transfer API, meter_data)
-#HOYT PLS CHECK HERE
 @app.callback(
     Output('message', 'children'),
     Input('submit-btn', 'n_clicks'),
@@ -657,7 +655,6 @@ def submit_reading(n_clicks, meter_id, timestamp, reading_kwh):
 
 
 # rules for meter reading_2(this one is for data display)
-#HOYT PLS CHECK HERE
 @app.callback(
     Output('data-display', 'children'),
     Input('interval-component', 'n_intervals')
