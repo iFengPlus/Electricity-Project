@@ -352,7 +352,7 @@ def bind_meter(n_clicks, meter_id, user_id):
                             return "Error: userID already exists, choose another."
 
                     record["userID"] = user_id
-                    record["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+                    #record["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
                     save_user(data)
                     return "Binding Successful!"
                 else:
@@ -361,7 +361,7 @@ def bind_meter(n_clicks, meter_id, user_id):
                             return "Error: userID already exists, choose another."
 
                     record["userID"] = user_id
-                    record["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+                    #record["timestamp"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
                     save_user(data)
                     return "Update Successful!"
 
