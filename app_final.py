@@ -368,6 +368,7 @@ def bind_meter(n_clicks, meter_id, user_id):
         return "Error: meterID not found."
 
 #rules for user query
+#rules for user query
 @app.callback(
     [Output("login-status", "children"), 
      Output("query-section", "style"),
@@ -380,38 +381,38 @@ def bind_meter(n_clicks, meter_id, user_id):
 def handle_user_query(login_clicks, query_clicks, user_id, query_type):
     triggered_id = ctx.triggered_id  
 
-    # User login (delete password requirement here)
+    # 🟢 用户登录
     if triggered_id == "login-btn":
         user = next((u for u in registration_data if u["userID"] == user_id), None)
         if user:
-            return (f"Login successful! Meter ID: {user['meterID']}", 
-                    {"display": "block"}, "", go.Figure())
+            return (f"Login successful! Meter ID: {user['meterID']}", {"display": "block"}, "", go.Figure())
         else:
-            return ("User not found. Please enter a valid User ID.", 
-                    {"display": "none"}, "", go.Figure())
+            return ("❌ User not found. Please enter a valid User ID.", {"display": "none"}, "", go.Figure())
 
-    # query button
+    # 🟢 处理查询逻辑
     elif triggered_id == "query-btn":
-        format_meter_data() 
+        format_meter_data()
         user = next((u for u in registration_data if u["userID"] == user_id), None)
+
         if not user:
-            return ("User not found.", {"display": "none"}, "No user data available.", go.Figure())
+            return ("❌ User not found.", {"display": "none"}, "No user data available.", go.Figure())
 
         meter_id = user["meterID"]
         if meter_id not in meter_data:
-            return ("No electricity data found.", {"display": "block"}, "No data for this meter.", go.Figure())
+            return ("⚠️ No electricity data found.", {"display": "block"}, "No data for this meter.", go.Figure())
 
         readings = meter_data[meter_id]
+        if len(readings) < 2:
+            return ("⚠️ No Sufficient Data Available", {"display": "block"}, "Not enough data to calculate consumption.", go.Figure())
+
         latest_timestamp = max(r["timestamp"] for r in readings) 
         now = latest_timestamp
-        results = {}
 
-        # filters(different time periods)
+        # **🟢 过滤时间段**
         if query_type == "last_30_min":
             start_time = now - timedelta(minutes=30)
         elif query_type == "today":
-            start_time = max((r["timestamp"] for r in readings if now.replace(hour=0, minute=0, second=0) - timedelta(days=1) <= r["timestamp"] < now.replace(hour=0, minute=0, second=0)),
-            default=now.replace(hour=0, minute=0, second=0) - timedelta(days=1))
+            start_time = now.replace(hour=0, minute=0, second=0)
         elif query_type == "yesterday":
             start_time = now - timedelta(days=1)
             end_time = start_time + timedelta(hours=24)
@@ -424,25 +425,57 @@ def handle_user_query(login_clicks, query_clicks, user_id, query_type):
         if query_type == "yesterday":
             filtered_readings = [r for r in readings if start_time <= r["timestamp"] < end_time]
 
-        if not filtered_readings:
-            return ("No Data Available", {"display": "block"}, "No electricity data found for this period.", go.Figure())
+        if len(filtered_readings) < 2:
+            return ("⚠️ No Data Available", {"display": "block"}, "Not enough data points for calculation.", go.Figure())
 
-        # calculate electricity usage
-        results["usage"] = get_reading_at(filtered_readings, max(r["timestamp"] for r in filtered_readings)) - \
-                           get_reading_at(filtered_readings, min(r["timestamp"] for r in filtered_readings))
-
-        # charts
+        # **🟢 计算用电量**
         timestamps = [r["timestamp"] for r in filtered_readings]
-        consumption = [r["reading_kwh"] for r in filtered_readings]
+        consumption_deltas = [
+            filtered_readings[i]["reading_kwh"] - filtered_readings[i - 1]["reading_kwh"]
+            for i in range(1, len(filtered_readings))
+        ]
 
+        # **🟢 处理 X 轴数据**
+        if query_type in ["past_week", "past_month"]:
+            # **按天加总**
+            daily_usage = {}
+            for i in range(1, len(timestamps)):
+                day = timestamps[i - 1].strftime("%Y-%m-%d")  # 只取日期部分
+                daily_usage[day] = daily_usage.get(day, 0) + consumption_deltas[i - 1]
+
+            # **更新 X 轴为日期**
+            time_labels = list(daily_usage.keys())
+            consumption_values = list(daily_usage.values())
+        else:
+            # **保持 30 分钟粒度**
+            time_labels = [
+                f"{timestamps[i - 1].strftime('%m%d %H:%M')} → {timestamps[i].strftime('%H:%M')}"
+                for i in range(1, len(timestamps))
+            ]
+            consumption_values = consumption_deltas
+
+        # **🟢 绘制图表**
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=timestamps, y=consumption, mode="lines+markers", name="Electricity Usage"))
-        fig.update_layout(title="Electricity Consumption Over Selected Period",
-                          xaxis_title="Time", yaxis_title="Usage (kWh)",
-                          template="plotly_white")
 
-        return (f"Electricity usage: {results['usage']} kWh", {"display": "block"}, "", fig)
+        fig.add_trace(go.Bar(
+            x=time_labels, 
+            y=consumption_values, 
+            name="Electricity Consumption",
+            marker_color="royalblue"
+        ))
 
+        fig.update_layout(
+            title="Electricity Consumption",
+            xaxis_title="Time Period",
+            yaxis_title="Consumption (kWh)",
+            xaxis=dict(showgrid=True, tickangle=45),
+            yaxis=dict(showgrid=True),
+            template="plotly_white"
+        )
+
+        return (f"⚡ Total electricity usage: {sum(consumption_values):.2f} kWh", {"display": "block"}, "", fig)
+
+    # 🛑 防止返回 None
     return ("", {"display": "none"}, "", go.Figure())
 
 #rules for government query_1
