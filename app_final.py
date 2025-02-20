@@ -247,7 +247,7 @@ def write_to_meter_data(meter_id, timestamp, reading_kwh):
     # Check 1: Is the timestamp already exist in meter_data?
     for entry in meter_data[meter_id]:
         if entry["timestamp"] == timestamp:
-            return "❌ Error: Duplicate timestamp. Data not inserted."
+            return "Error: Duplicate timestamp. Data not inserted."
 
     # Check 2: Find the exact insert place
     index = 0
@@ -256,7 +256,7 @@ def write_to_meter_data(meter_id, timestamp, reading_kwh):
 
     # insert it
     meter_data[meter_id].insert(index, {"timestamp": timestamp, "reading_kwh": reading_kwh})
-    return "✅ Data inserted successfully!"
+    return "Data inserted successfully!"
 
 # Meter reading page
 def meter_reading_page():
